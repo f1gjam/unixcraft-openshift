@@ -1,0 +1,3 @@
+---
+  - include: openshift_pre.yml
+  - include: /tmp/openshift-ansible/playbooks/byo/openshift-cluster/config.yml

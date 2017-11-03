@@ -1,0 +1,43 @@
+---
+
+- hosts: all
+  tasks:
+  - name: Install pre-req packages
+    yum: name={{item}} state=latest
+    with_items:
+      - yum-utils
+      - PyYAML
+      - python-passlib
+
+  - name: Update packages
+    yum:
+      state: latest
+      name: '*'
+
+  - name: Install docker
+    yum:
+      state: latest
+      name: docker-1.12.6
+
+  - name: Configure insecure-registry local setting for docker
+    lineinfile: dest=/etc/sysconfig/docker
+      regexp="^OPTIONS="
+      line="OPTIONS='--selinux-enabled --log-driver=journald --signature-verification=false --insecure-registry 172.30.0.0/16'"
+
+  - name: Configure Docker Storage
+    blockinfile:
+      path: /etc/sysconfig/docker-storage-setup
+      block: |
+        DEVS=/dev/sdb
+        VG=docker-vg
+
+  - name: docker-storage-setup
+    shell: docker-storage-setup
+
+  - name: Enable services
+    service:
+      name: "{{ item }}"
+      enabled: yes
+      state: started
+    with_items:
+      - docker

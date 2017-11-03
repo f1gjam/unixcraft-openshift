@@ -1,0 +1,50 @@
+[all:vars]
+ansible_ssh_user=ansible
+ansible_ssh_private_key_file=<path to ssh key file to be used by ansible>
+
+[OSEv3:children]
+masters
+nodes
+etcd
+glusterfs
+
+
+[OSEv3:vars]
+deployment_type=origin
+openshift_master_default_subdomain=app.lab.unixcraft.lcl
+osm_default_node_selector='region=lab'
+openshift_master_identity_providers=[{'name': 'htpasswd_auth', 'login': 'true', 'challenge': 'true', 'kind': 'HTPasswdPasswordIdentityProvider', 'filename': '/etc/origin/htpasswd'}]
+openshift_disable_check=memory_availability,disk_availability
+
+
+# enable ntp on masters to ensure proper failover
+openshift_clock_enabled=true
+
+
+
+#GlusterFS Persistent
+openshift_storage_glusterfs_namespace=glusterfs
+openshift_storage_glusterfs_name=storage
+openshift_storage_glusterfs_wipe=True
+
+#Deploy Metrics
+openshift_hosted_metrics_deploy=true
+
+
+[masters]
+osmaster01.lab.unixcraft.lcl
+
+[etcd]
+osmaster01.lab.unixcraft.lcl
+
+[glusterfs]
+osnode01.lab.unixcraft.lcl glusterfs_ip=192.168.10.62 glusterfs_devices='[ "/dev/sdc" ]'
+osnode02.lab.unixcraft.lcl glusterfs_ip=192.168.10.63 glusterfs_devices='[ "/dev/sdc" ]'
+osnode03.lab.unixcraft.lcl glusterfs_ip=192.168.10.64 glusterfs_devices='[ "/dev/sdc" ]'
+
+[nodes]
+osmaster01.lab.unixcraft.lcl openshift_schedulable=False
+osinfra01.lab.unixcraft.lcl openshift_node_labels="{'region': 'infra', 'zone': 'default'}" openshift_schedulable=True
+osnode01.lab.unixcraft.lcl openshift_node_labels="{'region': 'lab', 'zone': 'lhr'}" openshift_schedulable=True
+osnode02.lab.unixcraft.lcl openshift_node_labels="{'region': 'lab', 'zone': 'lhr'}" openshift_schedulable=True
+osnode03.lab.unixcraft.lcl openshift_node_labels="{'region': 'lab', 'zone': 'lhr'}" openshift_schedulable=True
