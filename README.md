@@ -193,3 +193,11 @@ oc create -f default-storageclass.yml
 ```
 
 Now you have enabled the GlusterFS to be the default storage and be used for dynamic provisioning.
+
+
+
+**Note**: Update from @jarrpa
+Simpler way to update / patch a storage class (example below)
+```
+oc patch storageclass generic -p '{"metadata": {"annotations":{"storageclass.kubernetes.io/is-default-class":"true"}}}'.
+```
